@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { appUrl, asset } from '../lib/paths';
 import { DEMO_TOKEN, demoApi } from '../mock/demoData';
 
 /** Ancho mínimo del contenedor (no del viewport) para mostrar tabla vs cards. */
@@ -435,7 +436,9 @@ export default function PortalApp() {
     setTheme(next);
     document.documentElement.classList.toggle('dark', next === 'dark');
     try {
-      const demo = new URLSearchParams(window.location.search).get('demo') === '1';
+      const params = new URLSearchParams(window.location.search);
+      const onPages = /\.github\.io$/i.test(window.location.hostname);
+      const demo = params.get('demo') === '1' || (onPages && params.get('demo') !== '0');
       if (demo) {
         const demoSession = { token: DEMO_TOKEN, nombre: 'Fuerza Norte' };
         localStorage.setItem('portal-session', JSON.stringify(demoSession));
@@ -527,7 +530,7 @@ export default function PortalApp() {
         <div className="sidebar-brand">
           <img
             className="brand-logo brand-logo-light"
-            src="/FAP.jpg"
+            src={asset('FAP.jpg')}
             alt="Fuerza y Acondicionamiento"
             width={40}
             height={40}
@@ -535,7 +538,7 @@ export default function PortalApp() {
           />
           <img
             className="brand-logo brand-logo-dark"
-            src="/FA.png"
+            src={asset('FA.png')}
             alt="Fuerza y Acondicionamiento"
             width={44}
             height={44}
@@ -1050,7 +1053,7 @@ function Login({
           ) : null}
           <img
             className="brand brand-logo-light"
-            src="/FAP.jpg"
+            src={asset('FAP.jpg')}
             alt="Fuerza y Acondicionamiento"
             width={120}
             height={120}
@@ -1058,7 +1061,7 @@ function Login({
           />
           <img
             className="brand brand-logo-dark"
-            src="/FA.png"
+            src={asset('FA.png')}
             alt="Fuerza y Acondicionamiento"
             width={120}
             height={120}
@@ -1120,7 +1123,7 @@ function Login({
               {busy ? 'Entrando…' : 'Entrar'}
             </button>
             <p className="muted" style={{ marginTop: '0.75rem', textAlign: 'center' }}>
-              <a href="/?demo=1" style={{ color: 'var(--fap-accent)', fontWeight: 700 }}>
+              <a href={appUrl('?demo=1')} style={{ color: 'var(--fap-accent)', fontWeight: 700 }}>
                 Ver interior (demo)
               </a>
             </p>

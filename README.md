@@ -224,7 +224,25 @@ feature work  →  features  →  (PR / merge)  →  prod
 
 ---
 
-## ☁️ Deploy (Render)
+## ☁️ Deploy
+
+### GitHub Pages (demo estática) ✨
+
+Cada push a **`features`** publica el sitio estático (modo demo automático en `*.github.io`).
+
+| | |
+|---|---|
+| 🔗 **URL** | https://yourideasourplatform.github.io/fuerzayacondicionamiento-entidades/ |
+| 🎭 **Demo** | Se activa sola en Pages (`?demo=0` la apaga) |
+| ⚙️ **Workflow** | [`.github/workflows/deploy-pages.yml`](./.github/workflows/deploy-pages.yml) |
+
+**Primera vez:** en el repo → **Settings → Pages → Source: GitHub Actions**.
+
+<p align="center">
+  <img src="https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif" width="180" alt="Deploy magic" />
+</p>
+
+### Render (producción)
 
 Archivo: [`render.yaml`](./render.yaml)
 
@@ -232,8 +250,7 @@ Archivo: [`render.yaml`](./render.yaml)
 - Build: `npm install && npm run build`
 - Publish: `dist`
 - Env: `PUBLIC_API_URL` (sync manual en el dashboard)
-
-Cuando publiques, apuntá el servicio a la rama **`prod`** (protegida).
+- Rama: **`prod`** (protegida)
 
 ---
 

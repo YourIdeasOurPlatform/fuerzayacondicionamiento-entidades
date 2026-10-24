@@ -1,5 +1,7 @@
 /** Datos mock para `?demo=1` (sin backend). */
 
+import { asset } from '../lib/paths';
+
 export const DEMO_TOKEN = 'demo';
 
 export const demoMe = {
@@ -12,9 +14,9 @@ export const demoMe = {
   tipo: 'centro',
   estado: true,
   /** Foto del centro (gimnasio), distinta al logo FA de marca. */
-  logo_url: '/demo-centro.jpg' as string | null,
+  logo_url: asset('demo-centro.jpg') as string | null,
   /** Avatar de cuenta en topbar (persona), distinto a FA y al logo del centro. */
-  cuenta_foto_url: '/demo-cuenta.jpg' as string | null,
+  cuenta_foto_url: asset('demo-cuenta.jpg') as string | null,
   sitio_web: 'https://fuerzanorte.demo',
   descripcion: 'Centro de fuerza y acondicionamiento en Palermo.',
   profesionales_usados: 3,
