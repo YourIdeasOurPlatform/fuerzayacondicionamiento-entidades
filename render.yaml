@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: fap-portal-entidades
+    runtime: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: PUBLIC_API_URL
+        sync: false
