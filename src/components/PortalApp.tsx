@@ -160,6 +160,13 @@ const NAV_ITEMS: Array<{ id: View; label: string; icon: NavIconName }> = [
   { id: 'perfil', label: 'Perfil', icon: 'perfil' },
 ];
 
+/** Sin pack activo solo se operan pago / pack / perfil (el resto es “modo demo” hasta activar). */
+const NAV_UNTIL_PACK_ACTIVE: View[] = ['pack', 'pagos', 'perfil'];
+
+function packIsActive(estado: string | null | undefined): boolean {
+  return String(estado || '').toLowerCase() === 'active';
+}
+
 function NavIcon({ name }: { name: NavIconName }) {
   const props = {
     width: 20,
@@ -428,6 +435,7 @@ export default function PortalApp() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [centroNombre, setCentroNombre] = useState('');
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [packEstado, setPackEstado] = useState<string | null>(null);
 
   useEffect(() => {
     // Misma convención que FAP login: dark por defecto si no hay `theme=light`.
@@ -456,14 +464,18 @@ export default function PortalApp() {
     if (!session) {
       setCentroNombre('');
       setLogoUrl(null);
+      setPackEstado(null);
       return;
     }
     setCentroNombre(session.nombre);
+    let cancel = false;
     api<{
       nombre_fantasia?: string;
       logo_url?: string | null;
+      contratacion?: { estado?: string | null } | null;
     }>('/entidades/me', session.token)
       .then((me) => {
+        if (cancel) return;
         const nombre = String(me.nombre_fantasia || session.nombre || '').trim();
         if (nombre) {
           setCentroNombre(nombre);
@@ -471,11 +483,17 @@ export default function PortalApp() {
           localStorage.setItem('portal-session', JSON.stringify(nextSession));
         }
         setLogoUrl(typeof me.logo_url === 'string' && me.logo_url ? me.logo_url : null);
+        const est = me.contratacion?.estado;
+        setPackEstado(typeof est === 'string' ? est : null);
       })
       .catch(() => {
         /* keep session.nombre */
       });
-  }, [session?.token]);
+    return () => {
+      cancel = true;
+    };
+    // Relee al cambiar de vista pack/pagos por si el admin activó el pack.
+  }, [session?.token, view]);
 
   function toggleTheme() {
     const next = theme === 'dark' ? 'light' : 'dark';
@@ -498,6 +516,19 @@ export default function PortalApp() {
     }
   }
 
+  const isDemo = Boolean(session && session.token === DEMO_TOKEN);
+  const unlocked = !session || isDemo || packIsActive(packEstado);
+  const navItems = unlocked
+    ? NAV_ITEMS
+    : NAV_ITEMS.filter((item) => NAV_UNTIL_PACK_ACTIVE.includes(item.id));
+
+  useEffect(() => {
+    if (!session || unlocked) return;
+    if (!NAV_UNTIL_PACK_ACTIVE.includes(view)) {
+      setView('pack');
+    }
+  }, [session, unlocked, view]);
+
   if (!session) {
     return (
       <Login
@@ -506,12 +537,11 @@ export default function PortalApp() {
         onSession={(next) => {
           localStorage.setItem('portal-session', JSON.stringify(next));
           setSession(next);
+          setView('pack');
         }}
       />
     );
   }
-
-  const isDemo = session.token === DEMO_TOKEN;
 
   return (
     <div
@@ -565,7 +595,7 @@ export default function PortalApp() {
           </div>
         </div>
         <nav className="sidebar-nav">
-          {NAV_ITEMS.map((item) => (
+          {navItems.map((item) => (
             <button
               key={item.id}
               type="button"
@@ -585,6 +615,7 @@ export default function PortalApp() {
         </nav>
         <div className="sidebar-foot">
           {isDemo ? <p className="sidebar-demo-badge">Modo demo</p> : null}
+          {!unlocked && !isDemo ? <p className="sidebar-demo-badge">Pack pendiente</p> : null}
           <button type="button" className="sidebar-link logout" onClick={logout}>
             <span className="nav-ico">
               <NavIcon name="logout" />
@@ -614,7 +645,7 @@ export default function PortalApp() {
           >
             <IconMenu />
           </button>
-          <div className="topbar-title">{NAV_ITEMS.find((i) => i.id === view)?.label || 'Inicio'}</div>
+          <div className="topbar-title">{navItems.find((i) => i.id === view)?.label || 'Inicio'}</div>
           <div className="topbar-user">
             <button
               className="btn icon"
