@@ -453,6 +453,29 @@ export default function PortalApp() {
         setSession(demoSession);
         return;
       }
+
+      // Handoff desde /login de FAP: `#fap_handoff=<jwt>` (fragmento, no llega al server).
+      const hash = window.location.hash.replace(/^#/, '');
+      const handoffMatch = /(?:^|&)fap_handoff=([^&]+)/.exec(hash);
+      if (handoffMatch?.[1]) {
+        const token = decodeURIComponent(handoffMatch[1]).trim();
+        const nombreParam = (params.get('nombre') || '').trim() || 'Centro';
+        if (token) {
+          const handoffSession = { token, nombre: nombreParam };
+          localStorage.setItem('portal-session', JSON.stringify(handoffSession));
+          setSession(handoffSession);
+          setView('pack');
+          try {
+            const clean = new URL(window.location.href);
+            clean.hash = '';
+            clean.searchParams.delete('nombre');
+            window.history.replaceState({}, '', clean.pathname + clean.search);
+          } catch {
+            /* ignore */
+          }
+          return;
+        }
+      }
     } catch {
       /* ignore */
     }
