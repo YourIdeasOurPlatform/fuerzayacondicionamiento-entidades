@@ -744,7 +744,7 @@ const DEMO_PORTAL_NOTIFS: PortalNotif[] = [
   {
     id: 'n1',
     titulo: 'Pack activo',
-    cuerpo: 'Tu pack Growth · Challenger está listo para operar.',
+    cuerpo: 'Tu pack 10 pros · SaaS Challenger está listo para operar.',
     cuando: 'Hoy',
     unread: false,
   },
