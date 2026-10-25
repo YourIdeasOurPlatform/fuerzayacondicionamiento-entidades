@@ -279,6 +279,7 @@ function SearchIcon() {
 
 function tipoPill(tipo: string | null | undefined) {
   const t = (tipo || 'socio').toLowerCase();
+  if (t === 'entidad') return <span className="pill tipo-entidad">Entidad</span>;
   if (t === 'entrenado' || t === 'alumno') return <span className="pill tipo-entrenado">Entrenado</span>;
   if (t === 'profesional') return <span className="pill tipo-profesional">Profesional</span>;
   return <span className="pill tipo-socio">Socio</span>;
@@ -3180,7 +3181,9 @@ function NuevaPlanillaModal({
 function Socios({ token }: { token: string }) {
   const [rows, setRows] = useState<SocioRow[]>([]);
   const [search, setSearch] = useState('');
-  const [filtro, setFiltro] = useState<'todos' | 'activo' | 'inactivo' | 'socio' | 'entrenado'>('todos');
+  const [filtro, setFiltro] = useState<
+    'todos' | 'activo' | 'inactivo' | 'socio' | 'entrenado' | 'entidad'
+  >('todos');
 
   useEffect(() => {
     api<SocioRow[]>('/entidades/me/socios', token)
@@ -3198,6 +3201,7 @@ function Socios({ token }: { token: string }) {
     if (!hay) return false;
     if (filtro === 'activo') return row.estado !== false;
     if (filtro === 'inactivo') return row.estado === false;
+    if (filtro === 'entidad') return (row.tipo || '').toLowerCase() === 'entidad';
     if (filtro === 'socio') return (row.tipo || 'socio').toLowerCase() === 'socio';
     if (filtro === 'entrenado') {
       const t = (row.tipo || '').toLowerCase();
@@ -3230,6 +3234,7 @@ function Socios({ token }: { token: string }) {
               ['inactivo', 'Inactivos'],
               ['socio', 'Socio'],
               ['entrenado', 'Entrenado'],
+              ['entidad', 'Entidad'],
             ] as const
           ).map(([id, label]) => (
             <button
