@@ -622,8 +622,15 @@ export function demoApi<T>(path: string, init?: RequestInit): T {
   if (path === '/entidades/me/socios' && method === 'GET') return demoSocios as T;
   if (path === '/entidades/me/ranking' && method === 'GET') return demoRanking as T;
   if (path === '/entidades/me/pagos' && method === 'GET') return demoPagos as T;
-  if (path === '/entidades/me/datos-cobro' && method === 'GET') {
-    return { items: demoMe.datos_cobro } as T;
+  if (path === '/entidades/me/contratacion/datos-cobro-plataforma' && method === 'GET') {
+    return {
+      items: [
+        { tipo: 'alias', valor: 'FA.PLATAFORMA', etiqueta: 'Pack centros' },
+        { tipo: 'cbu', valor: '0170099120000001234567' },
+      ],
+    } as T;
+  }
+  if (path === '/entidades/me/datos-cobro' && method === 'GET') {    return { items: demoMe.datos_cobro } as T;
   }
   if (path === '/entidades/me/datos-cobro' && method === 'PUT') {
     const items = Array.isArray(body.items) ? body.items : demoMe.datos_cobro;
@@ -633,6 +640,11 @@ export function demoApi<T>(path: string, init?: RequestInit): T {
   if (path === '/entidades/me/contratacion/declarar-pago' && method === 'POST') {
     demoMe.contratacion.estado = 'pending';
     demoMe.contratacion.motivo_estado = 'pago_declarado';
+    const formBody = init?.body;
+    const nombreArchivo =
+      typeof FormData !== 'undefined' && formBody instanceof FormData
+        ? (formBody.get('comprobante') as File | null)?.name || 'comprobante-demo.pdf'
+        : 'comprobante-demo.pdf';
     demoPagos.unshift({
       id: `pay-${Date.now()}`,
       origen: 'contratacion_entidad',
@@ -641,14 +653,15 @@ export function demoApi<T>(path: string, init?: RequestInit): T {
       moneda: 'ARS',
       medio_pago: 'TRANSFERENCIA',
       fecha_pago: null,
-      nota: String(body.comprobante_nombre || 'comprobante-demo.pdf'),
-      datos_cobro_resumen: 'ALIAS:FUERZA.NORTE; CBU:0170099120000001234567',
+      nota: nombreArchivo,
+      datos_cobro_resumen: null,
     });
     return {
       id: demoMe.contratacion.id,
       estado: 'pending',
       motivo_estado: 'pago_declarado',
-      datos_cobro: demoMe.datos_cobro,
+      comprobante_nombre: nombreArchivo,
+      tiene_comprobante: true,
     } as T;
   }
   if (path.startsWith('/entidades/me/invitaciones/profesional') && method === 'POST') {

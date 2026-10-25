@@ -2516,6 +2516,29 @@ html.dark .pill.tipo-profesional {
   }
 }
 
+.pagos-destino-box {
+  border: 1px solid var(--fap-border, #2a3548);
+  border-radius: 0.85rem;
+  background: color-mix(in srgb, var(--fap-surface, #121826) 88%, #1e3a5f);
+  padding: 0.85rem 1rem;
+}
+
+.pagos-destino-box strong {
+  display: block;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--fap-muted, #9aa8b8);
+  margin-bottom: 0.35rem;
+}
+
+.pagos-destino-box p {
+  margin: 0;
+  font-weight: 700;
+  color: var(--fap-ink, #e8eef7);
+  word-break: break-word;
+}
+
 .pagos-estado-row {
   display: flex;
   flex-wrap: wrap;

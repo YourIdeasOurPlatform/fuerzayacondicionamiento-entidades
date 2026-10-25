@@ -344,20 +344,28 @@ async function api<T>(path: string, token: string, init?: RequestInit): Promise<
     await new Promise((r) => setTimeout(r, 120));
     return demoApi<T>(path, init);
   }
+  const isFormData = typeof FormData !== 'undefined' && init?.body instanceof FormData;
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${token}`,
+    ...(init?.headers as Record<string, string> | undefined),
+  };
+  // FormData: el browser setea multipart boundary; no forzar application/json.
+  if (!isFormData && !headers['Content-Type']) {
+    headers['Content-Type'] = 'application/json';
+  }
   const response = await fetch(`${API}${path}`, {
     ...init,
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-      ...(init?.headers || {}),
-    },
+    headers,
   });
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));
     const detail = typeof body.detail === 'string' ? body.detail : null;
     throw new Error(detail || 'No se pudo completar');
   }
-  return response.json();
+  if (response.status === 204) return undefined as T;
+  const text = await response.text();
+  if (!text) return undefined as T;
+  return JSON.parse(text) as T;
 }
 
 function friendlyError(err: unknown, fallback = 'No se pudo completar'): string {
@@ -2313,6 +2321,13 @@ type PagoRow = {
   datos_cobro_resumen: string | null;
 };
 
+function formatCobroPlataforma(items: CobroItem[]): string {
+  if (!items.length) return '';
+  return items
+    .map((i) => `${String(i.tipo || '').toUpperCase()}: ${i.valor}${i.etiqueta ? ` (${i.etiqueta})` : ''}`)
+    .join(' · ');
+}
+
 function Pagos({ token }: { token: string }) {
   const [estado, setEstado] = useState('');
   const [error, setError] = useState('');
@@ -2320,8 +2335,11 @@ function Pagos({ token }: { token: string }) {
   const [alias, setAlias] = useState('');
   const [cbu, setCbu] = useState('');
   const [cvu, setCvu] = useState('');
+  const [plataformaCobro, setPlataformaCobro] = useState<CobroItem[]>([]);
+  const [file, setFile] = useState<File | null>(null);
   const [historial, setHistorial] = useState<PagoRow[]>([]);
   const [tick, setTick] = useState(0);
+  const [busyDeclarar, setBusyDeclarar] = useState(false);
 
   useEffect(() => {
     api<Record<string, unknown>>('/entidades/me', token)
@@ -2334,6 +2352,9 @@ function Pagos({ token }: { token: string }) {
         setCvu(cobro.find((i) => i.tipo === 'cvu')?.valor || '');
       })
       .catch((err) => setError(friendlyError(err)));
+    api<{ items: CobroItem[] }>('/entidades/me/contratacion/datos-cobro-plataforma', token)
+      .then((data) => setPlataformaCobro(data.items || []))
+      .catch(() => setPlataformaCobro([]));
     api<PagoRow[]>('/entidades/me/pagos', token).then(setHistorial).catch(() => setHistorial([]));
   }, [token, tick]);
 
@@ -2350,7 +2371,7 @@ function Pagos({ token }: { token: string }) {
         method: 'PUT',
         body: JSON.stringify({ items }),
       });
-      setOk('Datos de cobro guardados.');
+      setOk('Medios del centro guardados (para que te paguen los profesionales).');
       setTick((n) => n + 1);
     } catch (err) {
       setError(friendlyError(err, 'No se pudieron guardar'));
@@ -2359,33 +2380,89 @@ function Pagos({ token }: { token: string }) {
 
   async function declarar(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const form = new FormData(event.currentTarget);
     setError('');
     setOk('');
+    if (!file) {
+      setError('Adjuntá el comprobante de la transferencia (imagen o PDF).');
+      return;
+    }
+    setBusyDeclarar(true);
     try {
+      const body = new FormData();
+      body.append('comprobante', file, file.name);
       await api('/entidades/me/contratacion/declarar-pago', token, {
         method: 'POST',
-        body: JSON.stringify({ comprobante_nombre: String(form.get('comprobante') || '') || null }),
+        body,
       });
-      setOk('Declaraste el pago. Sigue pendiente hasta que la plataforma lo valide.');
+      setOk('Declaraste el pago del pack. Queda pendiente hasta que la plataforma lo valide.');
       setEstado('pending');
+      setFile(null);
       setTick((n) => n + 1);
     } catch (err) {
       setError(friendlyError(err, 'No se pudo declarar'));
+    } finally {
+      setBusyDeclarar(false);
     }
   }
 
   const pagosPager = usePagedItems(historial, `${historial.length}|${tick}`);
+  const packActivo = packIsActive(estado);
+  const destinoPlataforma = formatCobroPlataforma(plataformaCobro);
 
   return (
     <section className="grid pagos-page">
       <PageHead
         title="Pagos"
-        subtitle="Medios para recibir transferencias, declaración del pack e historial."
+        subtitle="Pagá el pack a la plataforma y configurá cómo te pagan tus profesionales."
       />
+      <form className="card grid" onSubmit={declarar}>
+        <h2>Pago del pack a la plataforma</h2>
+        <div className="pagos-estado-row">
+          <p className="muted" style={{ margin: 0 }}>
+            Estado del pack:
+          </p>
+          {estadoPill(estado)}
+        </div>
+        <p className="muted" style={{ margin: 0 }}>
+          Transferí el valor del pack a la cuenta de la plataforma y subí el comprobante. Esto no usa el
+          alias/CBU del centro.
+        </p>
+        {destinoPlataforma ? (
+          <div className="pagos-destino-box">
+            <strong>Datos para transferir</strong>
+            <p>{destinoPlataforma}</p>
+          </div>
+        ) : (
+          <p className="muted">
+            Todavía no hay medios de cobro de plataforma cargados. Pedile a administración el alias o CBU.
+          </p>
+        )}
+        <label>
+          Comprobante (imagen o PDF)
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/gif,application/pdf,.jpg,.jpeg,.png,.webp,.gif,.pdf"
+            onChange={(e) => setFile(e.target.files?.[0] || null)}
+            disabled={packActivo || busyDeclarar}
+          />
+        </label>
+        {file ? <p className="muted">Archivo: {file.name}</p> : null}
+        {error ? <p className="error">{error}</p> : null}
+        {ok ? <p className="ok-msg">{ok}</p> : null}
+        <button
+          className="fap-btn-primary pagos-action"
+          type="submit"
+          disabled={packActivo || busyDeclarar}
+        >
+          {packActivo ? 'Pack ya activo' : busyDeclarar ? 'Enviando…' : 'Declarar transferencia'}
+        </button>
+      </form>
       <form className="card grid" onSubmit={guardarCobro}>
-        <h2>Datos para recibir transferencias</h2>
-        <p className="muted">Alias y CBU o CVU del centro (máximo dos medios). Quedan asociados al historial.</p>
+        <h2>Datos para recibir de tus profesionales</h2>
+        <p className="muted">
+          Alias y CBU/CVU del centro (máx. 2). Sirven para que los pros te paguen su cuota; no son el
+          pago del pack a la plataforma.
+        </p>
         <div className="grid cols-2 pagos-medios-grid">
           <label>
             Alias
@@ -2411,25 +2488,7 @@ function Pagos({ token }: { token: string }) {
           </label>
         </div>
         <button className="fap-btn-primary pagos-action" type="submit">
-          Guardar medios
-        </button>
-      </form>
-      <form className="card grid" onSubmit={declarar}>
-        <h2>Pago del pack</h2>
-        <div className="pagos-estado-row">
-          <p className="muted" style={{ margin: 0 }}>
-            Estado actual del pack:
-          </p>
-          {estadoPill(estado)}
-        </div>
-        <label>
-          Nombre del comprobante
-          <input name="comprobante" placeholder="transferencia.pdf" />
-        </label>
-        {error ? <p className="error">{error}</p> : null}
-        {ok ? <p className="ok-msg">{ok}</p> : null}
-        <button className="fap-btn-primary pagos-action" type="submit">
-          Declarar transferencia
+          Guardar medios del centro
         </button>
       </form>
       <section className="card pagos-historial">
@@ -3505,7 +3564,7 @@ function MiPack({ token, onGoPagos }: { token: string; onGoPagos: () => void }) 
             profesionales
           </p>
           <button className="fap-btn-primary pack-cta" type="button" onClick={onGoPagos}>
-            Ir a pagos / declarar
+            Ir a pagar el pack
           </button>
         </article>
         <article className="card pack-aside">
