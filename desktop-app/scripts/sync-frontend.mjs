@@ -9,6 +9,10 @@ const out = path.join(desktopRoot, 'frontend');
 
 const env = { ...process.env };
 delete env.GITHUB_PAGES;
+// El portal de test en Render usa este host. Sin esto el escritorio queda en 127.0.0.1:8000.
+if (!String(env.PUBLIC_API_URL || '').trim()) {
+  env.PUBLIC_API_URL = 'https://fuerzayacondicionamiento-backend-chv5.onrender.com';
+}
 
 const result = spawnSync('npm', ['run', 'build'], {
   cwd: repoRoot,

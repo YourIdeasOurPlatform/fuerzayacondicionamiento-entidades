@@ -47,7 +47,7 @@ Eso hace el sync (`astro build` con `base: '/'`, sin el prefijo de GitHub Pages)
 
 `npm run dist` es el de la plataforma actual.
 
-Para apuntar a un API distinto del `.env` de la raíz:
+Si no pasás `PUBLIC_API_URL`, el escritorio queda apuntando al backend de test (`fuerzayacondicionamiento-backend-chv5`). Para otro API:
 
 ```bash
 PUBLIC_API_URL=https://tu-api.ejemplo.com npm run dist
