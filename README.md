@@ -195,7 +195,7 @@ npm run dev      # con el front ya corriendo en :4322
 npm run dist     # sync del front + instalador de este sistema
 ```
 
-Pasos de sync, `.dmg`, `.exe` y AppImage: [`desktop-app/README.md`](./desktop-app/README.md).
+Pasos de sync, `.tar.gz`, `.dmg` y `.exe`: [`desktop-app/README.md`](./desktop-app/README.md).
 
 ---
 

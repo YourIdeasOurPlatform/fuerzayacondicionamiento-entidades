@@ -57,7 +57,8 @@
       "shortcutName": "Fuerza y Acondicionamiento Entidades"
     },
     "linux": {
-      "target": ["AppImage"],
+      "target": ["tar.gz"],
+      "artifactName": "Fuerza_y_Acondicionamiento_Entidades.v${version}.${ext}",
       "category": "Office",
       "synopsis": "Portal de entidades de Fuerza y Acondicionamiento",
       "syncDesktopName": true

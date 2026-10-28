@@ -41,7 +41,7 @@ Eso hace el sync (`astro build` con `base: '/'`, sin el prefijo de GitHub Pages)
 
 | Sistema | Comando | Qué subís al Release |
 |---------|---------|----------------------|
-| Linux | `npm run dist:linux` | AppImage |
+| Linux | `npm run dist:linux` | `.tar.gz`: se descomprime y se ejecuta `fuerza-entidades` |
 | Windows | `npm run dist:win` | En Linux sale el `.zip` (adentro está `fuerza-entidades.exe`). El instalador `.exe` se arma corriendo el mismo comando en Windows. |
 | macOS | `npm run dist:mac` | En Linux salen dos zip, Apple Silicon (`mac-arm64`) e Intel (`mac-x64`). El `.dmg` se arma corriendo el mismo comando en una Mac. |
 
