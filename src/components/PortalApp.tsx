@@ -3612,7 +3612,7 @@ function MiPack({ token, onGoPagos }: { token: string; onGoPagos: () => void }) 
 }
 
 const DESKTOP_RELEASE =
-  'https://github.com/YourIdeasOurPlatform/fuerzayacondicionamiento-entidades/releases/download/desktop-v0.1.0/';
+  'https://github.com/YourIdeasOurPlatform/fuerzayacondicionamiento-entidades/releases/download/desktop-V1.0.0/';
 
 function desktopDownloadUrl(filename: string, override: string | undefined) {
   const custom = (override || '').trim();
@@ -3625,7 +3625,7 @@ const DESKTOP_DOWNLOADS = [
     id: 'linux',
     label: 'Linux',
     href: desktopDownloadUrl(
-      'Fuerza y Acondicionamiento Entidades-0.1.0.AppImage',
+      'Fuerza.y.Acondicionamiento.Entidades-0.1.0.AppImage',
       import.meta.env.PUBLIC_DESKTOP_APP_DOWNLOAD_URL_LINUX,
     ),
   },
@@ -3633,7 +3633,7 @@ const DESKTOP_DOWNLOADS = [
     id: 'win',
     label: 'Windows',
     href: desktopDownloadUrl(
-      'Fuerza y Acondicionamiento Entidades-0.1.0-win.zip',
+      'Fuerza.y.Acondicionamiento.Entidades-0.1.0-win.zip',
       import.meta.env.PUBLIC_DESKTOP_APP_DOWNLOAD_URL_WIN,
     ),
   },
@@ -3641,7 +3641,7 @@ const DESKTOP_DOWNLOADS = [
     id: 'mac-arm',
     label: 'Mac (Apple Silicon)',
     href: desktopDownloadUrl(
-      'Fuerza y Acondicionamiento Entidades-0.1.0-mac-arm64.zip',
+      'Fuerza.y.Acondicionamiento.Entidades-0.1.0-mac-arm64.zip',
       import.meta.env.PUBLIC_DESKTOP_APP_DOWNLOAD_URL_MAC_ARM64,
     ),
   },
@@ -3649,7 +3649,7 @@ const DESKTOP_DOWNLOADS = [
     id: 'mac-intel',
     label: 'Mac (Intel)',
     href: desktopDownloadUrl(
-      'Fuerza y Acondicionamiento Entidades-0.1.0-mac-x64.zip',
+      'Fuerza.y.Acondicionamiento.Entidades-0.1.0-mac-x64.zip',
       import.meta.env.PUBLIC_DESKTOP_APP_DOWNLOAD_URL_MAC_X64,
     ),
   },
