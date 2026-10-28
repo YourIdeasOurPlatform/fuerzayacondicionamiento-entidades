@@ -1,6 +1,7 @@
 import react from '@astrojs/react';
 import { defineConfig } from 'astro/config';
 
+// GitHub Pages usa el prefijo del repo. El resto (local, Render, Electron) sirve en /.
 const isGithubPages = process.env.GITHUB_PAGES === 'true';
 
 export default defineConfig({
