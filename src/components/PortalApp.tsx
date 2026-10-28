@@ -3611,6 +3611,50 @@ function MiPack({ token, onGoPagos }: { token: string; onGoPagos: () => void }) 
   );
 }
 
+const DESKTOP_RELEASE =
+  'https://github.com/YourIdeasOurPlatform/fuerzayacondicionamiento-entidades/releases/download/desktop-v0.1.0/';
+
+function desktopDownloadUrl(filename: string, override: string | undefined) {
+  const custom = (override || '').trim();
+  if (custom) return custom;
+  return `${DESKTOP_RELEASE}${encodeURIComponent(filename)}`;
+}
+
+const DESKTOP_DOWNLOADS = [
+  {
+    id: 'linux',
+    label: 'Linux',
+    href: desktopDownloadUrl(
+      'Fuerza y Acondicionamiento Entidades-0.1.0.AppImage',
+      import.meta.env.PUBLIC_DESKTOP_APP_DOWNLOAD_URL_LINUX,
+    ),
+  },
+  {
+    id: 'win',
+    label: 'Windows',
+    href: desktopDownloadUrl(
+      'Fuerza y Acondicionamiento Entidades-0.1.0-win.zip',
+      import.meta.env.PUBLIC_DESKTOP_APP_DOWNLOAD_URL_WIN,
+    ),
+  },
+  {
+    id: 'mac-arm',
+    label: 'Mac (Apple Silicon)',
+    href: desktopDownloadUrl(
+      'Fuerza y Acondicionamiento Entidades-0.1.0-mac-arm64.zip',
+      import.meta.env.PUBLIC_DESKTOP_APP_DOWNLOAD_URL_MAC_ARM64,
+    ),
+  },
+  {
+    id: 'mac-intel',
+    label: 'Mac (Intel)',
+    href: desktopDownloadUrl(
+      'Fuerza y Acondicionamiento Entidades-0.1.0-mac-x64.zip',
+      import.meta.env.PUBLIC_DESKTOP_APP_DOWNLOAD_URL_MAC_X64,
+    ),
+  },
+];
+
 function Perfil({
   token,
   onUpdated,
@@ -3628,6 +3672,11 @@ function Perfil({
   const [descripcion, setDescripcion] = useState('');
   const [sitio, setSitio] = useState('');
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [inDesktop, setInDesktop] = useState(false);
+
+  useEffect(() => {
+    setInDesktop(Boolean((window as Window & { entidadesDesktop?: unknown }).entidadesDesktop));
+  }, []);
 
   useEffect(() => {
     api<Record<string, unknown>>('/entidades/me', token)
@@ -3725,6 +3774,24 @@ function Perfil({
           Guardar perfil
         </button>
       </form>
+      {inDesktop ? null : (
+        <section className="card grid">
+          <h2>App de escritorio</h2>
+          <p className="muted" style={{ margin: 0 }}>
+            La misma cuenta, en una ventana de Linux, Windows o Mac. El backend sigue en la nube.
+          </p>
+          <div className="desktop-downloads">
+            {DESKTOP_DOWNLOADS.map((item) => (
+              <a key={item.id} className="fap-btn-primary" href={item.href}>
+                {item.label}
+              </a>
+            ))}
+          </div>
+          <p className="muted" style={{ margin: 0 }}>
+            En Mac, la primera vez: clic derecho y Abrir. En Windows, descomprimí el zip y abrí fuerza-entidades.exe.
+          </p>
+        </section>
+      )}
     </section>
   );
 }
