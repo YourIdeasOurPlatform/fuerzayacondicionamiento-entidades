@@ -3625,7 +3625,7 @@ const DESKTOP_DOWNLOADS = [
     id: 'linux',
     label: 'Linux',
     href: desktopDownloadUrl(
-      'Fuerza.y.Acondicionamiento.Entidades-0.1.0.AppImage',
+      'Fuerza_y_Acondicionamiento_Entidades.v0.1.0.tar.gz',
       import.meta.env.PUBLIC_DESKTOP_APP_DOWNLOAD_URL_LINUX,
     ),
   },
@@ -3788,7 +3788,7 @@ function Perfil({
             ))}
           </div>
           <p className="muted" style={{ margin: 0 }}>
-            En Mac, la primera vez: clic derecho y Abrir. En Windows, descomprimí el zip y abrí fuerza-entidades.exe.
+            En Linux, descomprimí el .tar.gz y ejecutá fuerza-entidades. En Windows, descomprimí el zip y abrí fuerza-entidades.exe. En Mac, la primera vez: clic derecho y Abrir.
           </p>
         </section>
       )}
