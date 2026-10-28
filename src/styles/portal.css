@@ -298,6 +298,17 @@ html.dark .login-card img.brand.brand-logo-dark {
   cursor: not-allowed;
 }
 
+.desktop-downloads {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.desktop-downloads a {
+  width: auto;
+  text-decoration: none;
+}
+
 .login-busy {
   position: absolute;
   inset: 0;
