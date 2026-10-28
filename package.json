@@ -6,7 +6,14 @@
   "scripts": {
     "dev": "astro dev --port 4322 --host 0.0.0.0",
     "build": "astro build",
-    "preview": "astro preview --port 4322 --host 0.0.0.0"
+    "preview": "astro preview --port 4322 --host 0.0.0.0",
+    "desktop:dev": "npm --prefix desktop-app run dev",
+    "desktop:sync": "npm --prefix desktop-app run sync",
+    "desktop:start": "npm --prefix desktop-app run start",
+    "desktop:dist": "npm --prefix desktop-app run dist",
+    "desktop:dist:linux": "npm --prefix desktop-app run dist:linux",
+    "desktop:dist:mac": "npm --prefix desktop-app run dist:mac",
+    "desktop:dist:win": "npm --prefix desktop-app run dist:win"
   },
   "dependencies": {
     "@astrojs/react": "^4.3.0",

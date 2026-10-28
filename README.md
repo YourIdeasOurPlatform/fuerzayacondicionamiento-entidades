@@ -184,6 +184,19 @@ npm run build
 npm run preview
 ```
 
+### App de escritorio (Electron)
+
+La misma app en una ventana de Linux, macOS o Windows. El backend sigue en la nube.
+
+```bash
+cd desktop-app
+npm install
+npm run dev      # con el front ya corriendo en :4322
+npm run dist     # sync del front + instalador de este sistema
+```
+
+Pasos de sync, `.dmg`, `.exe` y AppImage: [`desktop-app/README.md`](./desktop-app/README.md).
+
 ---
 
 ## ⚙️ Configuración
@@ -285,6 +298,7 @@ fuerzayacondicionamiento-entidades/
 │   │   └── index.astro
 │   └── styles/
 │       └── portal.css      # tokens --fap-* (claro/oscuro)
+├── desktop-app/            # shell Electron (sync del front + instalador)
 ├── render.yaml
 ├── package.json
 └── README.md               # 👈 estás acá

@@ -1,0 +1,66 @@
+{
+  "name": "entidades-desktop",
+  "private": true,
+  "version": "0.1.0",
+  "description": "App de escritorio del portal de entidades (Electron).",
+  "author": "YourIdeasOurPlatform",
+  "desktopName": "fuerza-entidades.desktop",
+  "main": "main.cjs",
+  "scripts": {
+    "postinstall": "node node_modules/electron/install.js",
+    "sync": "node scripts/sync-frontend.mjs",
+    "dev": "node scripts/dev.mjs",
+    "start": "electron .",
+    "dist": "npm run sync && electron-builder",
+    "dist:mac": "npm run sync && node scripts/dist-mac.mjs",
+    "dist:win": "npm run sync && node scripts/dist-win.mjs",
+    "dist:linux": "npm run sync && electron-builder --linux"
+  },
+  "devDependencies": {
+    "electron": "^37.2.0",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.yourideasourplatform.fuerzayacondicionamiento.entidades",
+    "productName": "Fuerza y Acondicionamiento Entidades",
+    "executableName": "fuerza-entidades",
+    "copyright": "Copyright © YourIdeasOurPlatform",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "main.cjs",
+      "preload.cjs",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "frontend",
+        "to": "frontend"
+      }
+    ],
+    "icon": "../public/FAP-circle.png",
+    "mac": {
+      "category": "public.app-category.business",
+      "target": ["dmg", "zip"],
+      "identity": null
+    },
+    "dmg": {
+      "title": "Fuerza y Acondicionamiento Entidades"
+    },
+    "win": {
+      "target": ["nsis", "zip"]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "shortcutName": "Fuerza y Acondicionamiento Entidades"
+    },
+    "linux": {
+      "target": ["AppImage"],
+      "category": "Office",
+      "synopsis": "Portal de entidades de Fuerza y Acondicionamiento",
+      "syncDesktopName": true
+    }
+  }
+}
